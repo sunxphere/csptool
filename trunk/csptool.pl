@@ -19,10 +19,13 @@
 # SOFTWARE.
 
 # Todo:
-# - Done. Group state machine style buses
-# - Done. Support multiple ILA units per device.
-# - Support token file to import multiple tokens in one file
-# - Support files with buses already presents
+# - Add verbose command-line flag for debug purposes (-v).
+# - Add command-line option to convert all buses to decimal representation. Or 
+#   better, just do that for counter type of buses such as X_cnt or X_counter.
+# - Support token files to import multiple tokens at once. The idea would be to
+#   modify the .tok file format to be able to specify to which bus this token applies, 
+#   and to be able to specify several buses at once.
+# - Support files with buses already presents.
 # - Support files without waveform fields (i.e. freshly made projects)
 
 use Tie::File;
@@ -36,8 +39,10 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  
  Features:
  - Supports multiple FPGA devices and multiple ILA units per FPGA
- - Supports Chipscope Pro v7.1.04i and v8.1.03i (Windows). Might 
+ - Supports Chipscope Pro v7.1.04i and v8.1.03i (Windows). Should 
    work with other OS and/or other Chipscope versions too.
+ - Supports regular buses, i.e. bus<0>, bus<1>, but also "state machine style" buses such
+   as State_Fdd1, StateFdd2, etc.
 
  Usage:
  - Create a new cpj projet with Chipscope Pro Analyzer (might not work if project is not "fresh").
@@ -91,7 +96,6 @@ for ($line=0; $line <= $#filearray; $line++)
       my $unit = $2;
       my $channel = $3;
       my $bus = $4;
-      #print "$device $bus\n";
       push( @{ $units_hash{$device}{$unit}{$bus} }, $channel); # This creates a hash of hash of hashes (yeah, I'm dizzy too). 
    }
 
@@ -112,7 +116,6 @@ foreach my $device (keys %units_hash)
          if ($nchannel == 0)
          {
             delete $units_hash{$device}{$unit}{$bus};
-            #splice(@{ $units_hash{$device} }, $bus, 1);
          }
       }
    }
@@ -154,8 +157,6 @@ for ($line=0; $line <= $#filearray; $line++)
       # unit.1.0.port.-1.buscount=0
       #
       my @bus_array = keys %{$units_hash{$device}{$unit}} ; $nbus = $#bus_array + 1 ;
-      #$nbus = scalar(keys(%HASH));
-      #print "There are $nbus buses in device $device.\n";
       $filearray[$line+1] = "unit.$device.$unit.port.-1.buscount=$nbus";
 
       # Let's insert something like that (after the line we found):
@@ -208,8 +209,6 @@ foreach my $device (keys %units_hash)
 # At the first occurence of the bus name, we store its position (posn.0) and we
 # replace it with the full bus. We then delete each subsequent bus appearance.
 
-#$first_occurance = 1;
-#print "Processing device $device, $bus ...\n";
 print "Reformatting the waveform section of the cpj file ...\n";
 for ($line=0; $line <= $#filearray; $line++)
 {        
@@ -218,10 +217,6 @@ for ($line=0; $line <= $#filearray; $line++)
    # unit.1.0.waveform.posn.0.name=/MODE<0>
    # or
    # unit.1.0.waveform.posn.86.name=/U14/TX_DATA<6>
-   # or 
-   # unit.1.0.waveform.posn.100.name=/U9/avg_state_FFd2
-   # or
-   # unit.1.0.waveform.posn.100.name=/U9/avg_state_FFd21
    #
    if ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>/ )         
    {
@@ -248,6 +243,7 @@ for ($line=0; $line <= $#filearray; $line++)
                $filearray[$line] =~ s/<\d+>//;        # Delete the <xx> part of the name
                $filearray[$line+1] =~ s/signal/bus/;  # Replace signal by bus 
                # Add decimal bus radix line
+               # TODO: Make this modification a command-line option
                #$new = "unit.$device.0.waveform.posn.$posn.radix=4";
                #splice @filearray, $line+2, 0, $new;
                
@@ -256,7 +252,13 @@ for ($line=0; $line <= $#filearray; $line++)
          }
       }
    }
-   elsif ( $filearray[$line] =~ /unit\.(\d)\.0\.waveform\.posn\.(\d+)\.name=(\S+\D+)\d+$/ )
+   # Or search for something like this: 
+   #
+   # unit.1.0.waveform.posn.100.name=/U9/avg_state_FFd2
+   # or
+   # unit.1.0.waveform.posn.100.name=/U9/avg_state_FFd21   
+   #
+   elsif ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+\D+)\d+$/ )
    {
       my $linedevice = $1;
       my $lineunit = $2;
@@ -281,6 +283,7 @@ for ($line=0; $line <= $#filearray; $line++)
                $filearray[$line] =~ s/\d+$//;         # Delete the 123 part of the name
                $filearray[$line+1] =~ s/signal/bus/;  # Replace signal by bus 
                # Add decimal bus radix line
+               # TODO: Make this modification a command-line option
                #$new = "unit.$device.0.waveform.posn.$posn.radix=4";
                #splice @filearray, $line+2, 0, $new;
                
