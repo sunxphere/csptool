@@ -1,0 +1,32 @@
+#!C:\Program Files\ActiveState Perl Dev Kit 6.0 Deployment\bin\lib\pai.exe
+PAP-Version: 1.0
+Packer: C:\Program Files\ActiveState Perl Dev Kit 6.0 Deployment\bin\perlapp.exe
+Script: csptool.pl
+Cwd: .\
+Clean: 0
+Date: 2006-08-16 17:38:41
+Debug: 
+Dependent: 0
+Dyndll: 0
+Exe: csptool.exe
+Force: 0
+Gui: 0
+Hostname: teccra
+Icon: csptool.exe
+No-Compress: 0
+No-Logo: 0
+Runlib: 
+Shared: none
+Tmpdir: 
+Verbose: 0
+Version-Comments: 
+Version-CompanyName: 
+Version-FileDescription: Merge Chipscope buses
+Version-FileVersion: 0.1
+Version-InternalName: 
+Version-LegalCopyright: Patrick Dubois
+Version-LegalTrademarks: 
+Version-OriginalFilename: 
+Version-ProductName: csptool
+Version-ProductVersion: 1.1
+Xclude: 0
