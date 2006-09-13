@@ -55,7 +55,7 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  - Reload your Chipscope projet.
 
  Patrick Dubois
- pdubois@gel.ulaval.ca (Drop me an e-mail if you find this tool useful or have comments!)
+ prdubois at gmail.com (Drop me an e-mail if you find this tool useful or have comments!)
  Quebec, Canada
  Version 1.1, September 2006
 EOF
