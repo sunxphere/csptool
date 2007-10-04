@@ -132,10 +132,10 @@ foreach my $device (sort(keys %units_hash))
    {
       my @bus_array = keys %{$units_hash{$device}{$unit}} ; $nbus = $#bus_array + 1 ;
       print "Found $nbus new buses in Device $device, Unit $unit.\n";
-#      foreach my $bus ( keys %{$units_hash{$device}{$unit}} )
-#      {
-#         print "Device $device, Unit $unit, $bus = @{ $units_hash{$device}{$unit}{$bus} }\n";
-#      }
+      foreach my $bus ( keys %{$units_hash{$device}{$unit}} )
+      {
+         print "Device $device, Unit $unit, $bus = @{ $units_hash{$device}{$unit}{$bus} }\n";
+      }
    }
 }
 #-------------------------------------------------------------------------------
@@ -146,18 +146,19 @@ foreach my $device (sort(keys %units_hash))
 #-------------------------------------------------------------------------------
 for ($line=0; $line <= $#filearray; $line++)
 {
-   # Search for something like this: unit.1.0.eventCount0
-   if ( $filearray[$line] =~ /unit\.(\d)\.(\d).eventCount0/ )
+   # Search for something like this: unit.1.0.port.-1.buscount=0
+   if ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.port\.-1\.buscount=0/ )
    {     
       $device = $1;
       $unit = $2;
-      print "Adding buses declarations to Device $device, Unit $unit ...\n";
+      print "Adding buses declarations to Device $device, Unit $unit ...\n";            
+      
       # First let's adjust this line to the right buscount:
       #
       # unit.1.0.port.-1.buscount=0
       #
       my @bus_array = keys %{$units_hash{$device}{$unit}} ; $nbus = $#bus_array + 1 ;
-      $filearray[$line+1] = "unit.$device.$unit.port.-1.buscount=$nbus";
+      $filearray[$line] = "unit.$device.$unit.port.-1.buscount=$nbus";
 
       # Let's insert something like that (after the line we found):
       #
