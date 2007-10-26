@@ -28,6 +28,11 @@
 # - Support files with buses already presents.
 # - Support files without waveform fields (i.e. freshly made projects)
 
+# Version history:
+# v1.2 : Added support for multiple match units
+# v1.3 : Added support for EDK style buses, i.e. bus[0], bus[1]
+#
+
 use Tie::File;
 
 if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'help')) 
@@ -39,10 +44,10 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  
  Features:
  - Supports multiple FPGA devices and multiple ILA units per FPGA
- - Supports Chipscope Pro v7.1.04i and v8.1.03i (Windows). Should 
+ - Supports Chipscope Pro v7.1.04i, v8.1.03i and v9.1.03i (Windows). Should 
    work with other OS and/or other Chipscope versions too.
- - Supports regular buses, i.e. bus<0>, bus<1>, but also "state machine style" buses such
-   as State_Fdd1, StateFdd2, etc.
+ - Supports regular buses, i.e. bus<0>, bus<1>, EDK style buses bus[0], bus[1], 
+   but also "state machine style" buses such as State_Fdd1, StateFdd2, etc.
 
  Usage:
  - Create a new cpj projet with Chipscope Pro Analyzer (might not work if project is not "fresh").
@@ -57,7 +62,7 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  Patrick Dubois
  prdubois at gmail.com (Drop me an e-mail if you find this tool useful or have comments!)
  Quebec, Canada
- Version 1.1, September 2006
+ Version 1.3, October 2007
 EOF
 }
 
@@ -90,6 +95,7 @@ for ($line=0; $line <= $#filearray; $line++)
    # unit.2.1.waveform.posn.180.name=/S1/U10/timeout<3>
    #
    if (  ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>/ ) or
+         ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]/ ) or
          ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+\D+)\d+$/ ) )
    {
       my $device = $1;
@@ -134,7 +140,7 @@ foreach my $device (sort(keys %units_hash))
       print "Found $nbus new buses in Device $device, Unit $unit.\n";
       foreach my $bus ( keys %{$units_hash{$device}{$unit}} )
       {
-         print "Device $device, Unit $unit, $bus = @{ $units_hash{$device}{$unit}{$bus} }\n";
+         #print "Device $device, Unit $unit, $bus = @{ $units_hash{$device}{$unit}{$bus} }\n";
       }
    }
 }
@@ -253,6 +259,47 @@ for ($line=0; $line <= $#filearray; $line++)
          }
       }
    }
+   # Or search for something like this: 
+   #
+   # unit.1.0.waveform.posn.0.name=/MODE[0]
+   # or
+   # unit.1.0.waveform.posn.86.name=/U14/TX_DATA[6]
+   #   
+   elsif ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]/ )         
+   {
+      my $linedevice = $1;
+      my $lineunit = $2;
+      my $posn = $3;
+      my $linebus = $4;    
+      # Now let's see if this bus is in the hash (it should be, unless the bus is single bit)      
+      @buslist = keys %{$units_hash{$linedevice}{$lineunit}} ;     
+      foreach my $bus (@buslist)
+      {
+         if ($bus =~ /^$linebus$/ )
+         {
+            if ($units_hash{$linedevice}{$lineunit}{$linebus} == 1)
+            {
+               # Delete current line, as well as the line above and the line under.
+               delete($filearray[$line-1]);
+               delete($filearray[$line]);
+               delete($filearray[$line+1]);  
+            }
+            else # first occurance
+            {
+               $units_hash{$linedevice}{$lineunit}{$linebus} = 1;
+               $filearray[$line] =~ s/\[\d+\]//;        # Delete the [xx] part of the name
+               $filearray[$line+1] =~ s/signal/bus/;  # Replace signal by bus 
+               # Add decimal bus radix line
+               # TODO: Make this modification a command-line option
+               #$new = "unit.$device.0.waveform.posn.$posn.radix=4";
+               #splice @filearray, $line+2, 0, $new;
+               
+            }  
+            
+         }
+      }
+   }   
+   
    # Or search for something like this: 
    #
    # unit.1.0.waveform.posn.100.name=/U9/avg_state_FFd2
