@@ -25,12 +25,12 @@
 # - Support token files to import multiple tokens at once. The idea would be to
 #   modify the .tok file format to be able to specify to which bus this token applies, 
 #   and to be able to specify several buses at once.
-# - Support files with buses already presents.
 # - Support files without waveform fields (i.e. freshly made projects)
 
 # Version history:
 # v1.2 : Added support for multiple match units
 # v1.3 : Added support for EDK style buses, i.e. bus[0], bus[1]
+# v1.4 : Now supports files with buses already presents.
 #
 
 use Tie::File;
@@ -62,7 +62,7 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  Patrick Dubois
  prdubois at gmail.com (Drop me an e-mail if you find this tool useful or have comments!)
  Quebec, Canada
- Version 1.3, October 2007
+ Version 1.4, November 30, 2007
 EOF
 }
 
@@ -153,17 +153,18 @@ foreach my $device (sort(keys %units_hash))
 for ($line=0; $line <= $#filearray; $line++)
 {
    # Search for something like this: unit.1.0.port.-1.buscount=0
-   if ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.port\.-1\.buscount=0/ )
+   if ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.port\.-1\.buscount=(\d+)/ )
    {     
       $device = $1;
       $unit = $2;
+      $buscount = $3;
       print "Adding buses declarations to Device $device, Unit $unit ...\n";            
       
       # First let's adjust this line to the right buscount:
       #
       # unit.1.0.port.-1.buscount=0
       #
-      my @bus_array = keys %{$units_hash{$device}{$unit}} ; $nbus = $#bus_array + 1 ;
+      my @bus_array = keys %{$units_hash{$device}{$unit}} ; $nbus = $#bus_array + 1 + $buscount;
       $filearray[$line] = "unit.$device.$unit.port.-1.buscount=$nbus";
 
       # Let's insert something like that (after the line we found):
@@ -172,7 +173,7 @@ for ($line=0; $line <= $#filearray; $line++)
       # unit.1.0.port.-1.b.0.channellist=22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
       # unit.1.0.port.-1.b.0.name=/U14/TX_DATA
       #
-      $b = 0;
+      $b = $buscount;
       foreach my $bus ( keys %{$units_hash{$device}{$unit}} )
       {
          #print "Bus name: $bus\n";
