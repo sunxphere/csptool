@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # Copyright (c) 2006 Patrick Dubois, Telops inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of 
@@ -94,8 +95,8 @@ for ($line=0; $line <= $#filearray; $line++)
    # or
    # unit.2.1.waveform.posn.180.name=/S1/U10/timeout<3>
    #
-   if (  ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>/ ) or
-         ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]/ ) or
+   if (  ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>$/ ) or
+         ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]$/ ) or
          ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+\D+)\d+$/ ) )
    {
       my $device = $1;
@@ -226,7 +227,7 @@ for ($line=0; $line <= $#filearray; $line++)
    # or
    # unit.1.0.waveform.posn.86.name=/U14/TX_DATA<6>
    #
-   if ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>/ )         
+   if ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>$/ )         
    {
       my $linedevice = $1;
       my $lineunit = $2;
@@ -266,7 +267,7 @@ for ($line=0; $line <= $#filearray; $line++)
    # or
    # unit.1.0.waveform.posn.86.name=/U14/TX_DATA[6]
    #   
-   elsif ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]/ )         
+   elsif ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]$/ )         
    {
       my $linedevice = $1;
       my $lineunit = $2;
