@@ -18,7 +18,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 # SOFTWARE.
-
+#
 # Todo:
 # - Add verbose command-line flag for debug purposes (-v).
 # - Add command-line option to convert all buses to decimal representation. Or 
@@ -27,12 +27,19 @@
 #   modify the .tok file format to be able to specify to which bus this token applies, 
 #   and to be able to specify several buses at once.
 # - Support files without waveform fields (i.e. freshly made projects)
-
+#
 # Version history:
 # v1.2 : Added support for multiple match units
 # v1.3 : Added support for EDK style buses, i.e. bus[0], bus[1]
 # v1.4 : Now supports files with buses already presents (NOT WORKING!!!).
 # v1.5 : Correctly supports nets such as tap_ctrl_gen[0].tap_ctrl without detecting them as buses.
+#
+#--------------------------------------------------------------------------------------------------
+#-- SVN fields (do not manually edit):
+#-- $Revision%
+#-- $Author$
+#-- $LastChangedDate$
+#--------------------------------------------------------------------------------------------------
 
 use Tie::File;
 
