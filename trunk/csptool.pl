@@ -31,8 +31,8 @@
 # Version history:
 # v1.2 : Added support for multiple match units
 # v1.3 : Added support for EDK style buses, i.e. bus[0], bus[1]
-# v1.4 : Now supports files with buses already presents.
-#
+# v1.4 : Now supports files with buses already presents (NOT WORKING!!!).
+# v1.5 : Correctly supports nets such as tap_ctrl_gen[0].tap_ctrl without detecting them as buses.
 
 use Tie::File;
 
@@ -45,7 +45,7 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  
  Features:
  - Supports multiple FPGA devices and multiple ILA units per FPGA
- - Supports Chipscope Pro v7.1.04i, v8.1.03i and v9.1.03i (Windows). Should 
+ - Supports Chipscope Pro v7.x, v8.x and v9.x (Windows). Should 
    work with other OS and/or other Chipscope versions too.
  - Supports regular buses, i.e. bus<0>, bus<1>, EDK style buses bus[0], bus[1], 
    but also "state machine style" buses such as State_Fdd1, StateFdd2, etc.
@@ -63,7 +63,7 @@ if ( (@ARGV != 1)  or ($ARGV[0] eq '-h') or ($ARGV[0] eq 'h') or ($ARGV[0] eq 'h
  Patrick Dubois
  prdubois at gmail.com (Drop me an e-mail if you find this tool useful or have comments!)
  Quebec, Canada
- Version 1.4, November 30, 2007
+ Version 1.5, March 5, 2008
 EOF
 }
 
