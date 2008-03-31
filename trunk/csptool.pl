@@ -94,9 +94,11 @@ for ($line=0; $line <= $#filearray; $line++)
    # unit.2.0.waveform.posn.181.name=/U26/Run_State_FFd11
    # or
    # unit.2.1.waveform.posn.180.name=/S1/U10/timeout<3>
+   # but NOT
+   # unit.2.0.waveform.posn.55.name=/DDR/tap_ctrl_gen[0].tap_ctrl_0/calib_start
    #
-   if (  ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>$/ ) or
-         ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]$/ ) or
+   if (  ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)<\d+>$/ ) or     
+         ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+)\[\d+\]$/ ) or    # The $ at the end is necessary to avoid detecting tap_ctrl_gen[0].tap_ctrl as a bus.
          ( $filearray[$line] =~ /unit\.(\d)\.(\d)\.waveform\.posn\.(\d+)\.name=(\S+\D+)\d+$/ ) )
    {
       my $device = $1;
